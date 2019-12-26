@@ -1,35 +1,28 @@
 package cn.qiandao.pojo;
 
+import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 /**
  * @author fyy
- * @date 2019/12/24 15:33
+ * @date 2019/12/25 15:29
  **/
+@Entity
+@Table(name = "userinfo")
+@Data
+public class User{
+    @Column(name = "userid")
+    private Integer userid;
 
-public class User {
-    private Integer id;
-    private String name;
+    @Column(name = "username")
+    private String username;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "userpwd")
+    private String userpwd;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
+    @Column(name = "useraddress")
+    private Integer useraddress;
 }
