@@ -17,26 +17,28 @@ server:
 #ali durid
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/hehe02?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC
     username: root
-    password: lQtr79t4kKYZ1cIbMl40FQbvhoxoEq3k14BNLxfhtagtt7L2dpgFNmPNooPXrl1nDwKrE6MLmXbZPg+ZDJEaGg==
+    password: Qiandao1..
     driver-class-name: com.mysql.jdbc.Driver
-    platform: mysql
+    url: jdbc:mysql://39.105.179.42:3306/qiandao?serverTimezone=UTC&useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource
-    initialSize: 1
-    minIdle: 3
+    #   数据源其他配置
+    initialSize: 5
+    minIdle: 5
     maxActive: 20
     maxWait: 60000
-    timeBetweenEvictionRunMillis: 60000
-    minEvictableIdTimeMillis: select 'x'
-    testWhileIdle: true
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: false
     testOnBorrow: false
     testOnReturn: false
     poolPreparedStatements: true
+    exceptionsorter: true
+    filters: stat,wall
     maxPoolPreparedStatementPerConnectionSize: 20
-    filters: stat,wall,slf4j,config
-    userGlobalDataSoureStat: ture
-    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500;config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALz4MuKD6walFfktIkZePp0Djzw71YnxBvlAQfNmlvR1TSlP+4/z4t8LJR4FRZZS2DzmurigVENufQ92W0L5S/MCAwEAAQ==
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
 
 
 mybatis:
@@ -57,16 +59,14 @@ spring:
   redis:
     host : 127.0.0.1
     port : 6379
-    password:
-    timeout:
-    jedis :
-      pool :
-        maxTotal: 100
-        maxWaitMillis : 100000
+    #Redis服务器连接密码（默认为空）
+    #password:
+    jedis:
+      pool:
+        #连接池最大连接数（如果配置<=0,则没有限制）
         max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+    #选择你使用的是Redis的第几个数据库
+    database: 4
 
 ---
 

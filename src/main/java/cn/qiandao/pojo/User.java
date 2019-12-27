@@ -1,28 +1,28 @@
 package cn.qiandao.pojo;
 
-import lombok.Data;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * @author fyy
- * @date 2019/12/25 15:29
+ * @date 2019/12/27 11:21
  **/
-@Entity
-@Table(name = "userinfo")
-@Data
-public class User{
-    @Column(name = "userid")
-    private Integer userid;
+public class User implements Serializable {
+    private Integer id;
+    private String name;
 
-    @Column(name = "username")
-    private String username;
+    public Integer getId() {
+        return id;
+    }
 
-    @Column(name = "userpwd")
-    private String userpwd;
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    @Column(name = "useraddress")
-    private Integer useraddress;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
