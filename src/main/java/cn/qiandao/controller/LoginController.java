@@ -18,7 +18,7 @@ public class LoginController {
     //密码登录
     @CrossOrigin
     @RequestMapping("/ptl/{name}/{pwd}")
-    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd, HttpServletRequest request){
+    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd){
         if(name == null | pwd == null){
             return null;
         }else {

@@ -105,9 +105,12 @@ public class LoginServiceImpl implements LoginService {
     //用户注册成功进行信息存储
     @Override
     public User saveRegisterUser(String phone,String pwd){
+        System.out.println("123/*/*/*/*"+lm.getPhone(phone));
         if(lm.getPhone(phone) == null){
             User u = new User();
-            u.setNumber(code.getNewEquipmentNo("yh",""));
+            String substring = getcount().substring(3);
+            System.out.println(substring);
+            u.setNumber(code.getNewEquipmentNo("yh",substring));
             u.setJurisdiction(1);
             u.setUsername(creatUserName.getNewUserName());
             u.setPwd(new Md5Hash(pwd, phone, 3).toString());
@@ -150,8 +153,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public int getcount() {
-        //return lm.getcount();
-        return 1;
+    public String getcount() {
+        return lm.getNumber();
     }
 }
