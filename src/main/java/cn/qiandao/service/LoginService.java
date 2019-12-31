@@ -9,5 +9,5 @@ public interface LoginService {
     User saveRegisterUser(String sphone, String pwd);
     Boolean verifyPhoneNumber(String sphone);
     User getUserInfo(String phone);
-    int getcount();
+    String getcount();
 }
