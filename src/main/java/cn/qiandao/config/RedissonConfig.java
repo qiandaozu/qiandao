@@ -18,18 +18,18 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class RedissonConfig {
 
-    @Autowired
-    private Environment env;
-
-    @Bean
-    public RedissonClient redissonClient(){
-        Config config=new Config();
-        config.useSingleServer()
-                .setAddress("redis://" + env.getProperty("spring.redis.host" + ":" + env.getProperty("spring.redis.port")))
-                .setPassword(env.getProperty("spring.redis.password"));
-        RedissonClient client=Redisson.create(config);
-        return client;
-    }
+//    @Autowired
+//    private Environment env;
+//
+//    @Bean
+//    public RedissonClient redissonClient(){
+//        Config config=new Config();
+//        config.useSingleServer()
+//                .setAddress("redis://" + env.getProperty("spring.redis.host" + ":" + env.getProperty("spring.redis.port")))
+//                .setPassword(env.getProperty("spring.redis.password"));
+//        RedissonClient client=Redisson.create(config);
+//        return client;
+//    }
 
 
 }
