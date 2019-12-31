@@ -6,6 +6,8 @@ import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/login")
 public class LoginController {
@@ -16,7 +18,7 @@ public class LoginController {
     //密码登录
     @CrossOrigin
     @RequestMapping("/ptl/{name}/{pwd}")
-    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd){
+    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd, HttpServletRequest request){
         if(name == null | pwd == null){
             return null;
         }else {

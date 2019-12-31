@@ -70,4 +70,8 @@
         ubi_educationexperience,ubi_industry,ubi_workingexperience,ubi_incomerange,ubi_email,ubi_wechat from userinfo left join userbasicinfo on ui_id=ubi_usernumber
         where ui_phone=#{getPhone}
     </select>
+    <select id="getNumber" resultType="java.lang.String">
+        select ui_number from userinfo limit 0,1
+    </select>
+
 </mapper>

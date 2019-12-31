@@ -11,4 +11,5 @@ public interface LoginMapper {
     int saveRegisterUser(@Param("user")User user);
     int saveRegisterUserbasic(@Param("user")User user);
     User getUserInfo(@Param("getPhone")String getPhone);
+    String getNumber();
 }

@@ -107,7 +107,7 @@ public class LoginServiceImpl implements LoginService {
     public User saveRegisterUser(String phone,String pwd){
         if(lm.getPhone(phone) == null){
             User u = new User();
-            u.setNumber("yh" + new IdWorker(1,1,1).toString());
+            u.setNumber(code.getNewEquipmentNo("yh",""));
             u.setJurisdiction(1);
             u.setUsername(creatUserName.getNewUserName());
             u.setPwd(new Md5Hash(pwd, phone, 3).toString());
@@ -147,5 +147,11 @@ public class LoginServiceImpl implements LoginService {
     public User getUserInfo(String phone){
         User u = lm.getUserInfo(phone);
         return u;
+    }
+
+    @Override
+    public int getcount() {
+        //return lm.getcount();
+        return 1;
     }
 }
