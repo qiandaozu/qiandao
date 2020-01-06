@@ -44,7 +44,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     //发送短信
-    public String getcode(String sphone,int tcNumber) {
+    @Override
+    public String getcode(String sphone, int tcNumber) {
         String templateNumber = "";
         switch (tcNumber){
             case 1:
@@ -111,7 +112,6 @@ public class LoginServiceImpl implements LoginService {
             String substring = getcount().substring(3);
             System.out.println(substring);
             u.setNumber(code.getNewEquipmentNo("yh",substring));
-            u.setJurisdiction(1);
             u.setUsername(creatUserName.getNewUserName());
             u.setPwd(new Md5Hash(pwd, phone, 3).toString());
             u.setImg("1");

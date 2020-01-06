@@ -15,25 +15,28 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Override
-    public User save(User user) {
-        return userMapper.save(user);
+    public int save(User user) {
+        return userMapper.insert(user);
     }
 
     @Override
     public User findById(String id) {
-        return userMapper.findById(id);
+        User u = new User();
+        u.setNumber(id);
+        return userMapper.selectOne(u);
     }
 
-    public void delete(User user) {
-        userMapper.delete(user);
+    @Override
+    public int delete(User user) {
+        return userMapper.delete(user);
     }
 
     @Override
     public List<User> findAll() {
-        return userMapper.findAll();
+        return userMapper.selectAll();
     }
 
 }
