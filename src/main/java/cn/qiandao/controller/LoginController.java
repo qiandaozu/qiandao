@@ -2,11 +2,11 @@ package cn.qiandao.controller;
 
 import cn.qiandao.pojo.User;
 import cn.qiandao.service.impl.LoginServiceImpl;
-import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/login")
@@ -15,29 +15,25 @@ public class LoginController {
     @Autowired
     private LoginServiceImpl lsi;
 
+    //cookie登录
+    @CrossOrigin
+    @RequestMapping("/cv")
+    public User cvLogin(HttpServletRequest request, HttpServletResponse response){
+        return lsi.validationCookie(request,response);
+    }
+
     //密码登录
     @CrossOrigin
     @RequestMapping("/ptl/{name}/{pwd}")
-    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd){
-        if(name == null | pwd == null){
-            return null;
-        }else {
-            String upwd = lsi.getPasswordByUsername(name);
-            String s = new Md5Hash(pwd, name, 3).toString();
-            if(upwd != null & s == upwd){
-                User u = lsi.getUserInfo(name);
-                return u;
-            }else {
-                return null;
-            }
-        }
+    public User paaswordToLogin(@PathVariable("name")String name, @PathVariable("pwd")String pwd,HttpServletResponse response){
+        return lsi.ptlLogin(name,pwd,response);
     }
 
     //验证码登录
     @CrossOrigin
     @RequestMapping("/vcl/{phone}/{vc}")
     public User verificationCodeLogin(@PathVariable("phone") String phone,@PathVariable("vc") String vc){
-        User u = null;
+        User u = new User();
         if(lsi.verifyPhoneNumber(phone)) {
             if(lsi.verificationCode(phone, vc)){
                 u = lsi.getUserInfo(phone);
@@ -77,4 +73,11 @@ public class LoginController {
         }
 
     }
+
+    @CrossOrigin
+    @RequestMapping("/cp/{phone}/{pwd}")
+    public String changePwd(@PathVariable("phone") String phone,@PathVariable("pwd") String pwd){
+        return lsi.changePwd(phone,pwd);
+    }
+
 }

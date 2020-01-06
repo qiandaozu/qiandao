@@ -10,4 +10,5 @@ public interface LoginService {
     Boolean verifyPhoneNumber(String sphone);
     User getUserInfo(String phone);
     String getcount();
+    String changePwd(String phone,String pwd);
 }

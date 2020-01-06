@@ -3,11 +3,7 @@ package cn.qiandao.service.impl;
 import cn.qiandao.mapper.LoginMapper;
 import cn.qiandao.pojo.User;
 import cn.qiandao.service.LoginService;
-import cn.qiandao.util.CreatUserName;
-import cn.qiandao.util.DateTime;
-import cn.qiandao.util.IdWorker;
-import cn.qiandao.util.code;
-import net.sf.saxon.functions.Substring;
+import cn.qiandao.util.*;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.aliyuncs.CommonRequest;
@@ -20,7 +16,10 @@ import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,11 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private CreatUserName creatUserName;
     @Autowired
-    StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private CookieUtils cookieUtils;
+    @Autowired
+    private EncryptionToDecrypt etd;
 
     @Override
     public String getPasswordByUsername(String name) {
@@ -44,9 +47,9 @@ public class LoginServiceImpl implements LoginService {
     }
 
     //发送短信
-    public String getcode(String sphone,int tcNumber) {
+    public String getcode(String sphone, int tcNumber) {
         String templateNumber = "";
-        switch (tcNumber){
+        switch (tcNumber) {
             case 1:
                 templateNumber = "SMS_181202286";
                 break;
@@ -57,7 +60,7 @@ public class LoginServiceImpl implements LoginService {
                 templateNumber = "SMS_181490498";
                 break;
         }
-        if (stringRedisTemplate.opsForValue().get(sphone) == null){
+        if (stringRedisTemplate.opsForValue().get(sphone) == null) {
             stringRedisTemplate.opsForValue().set(sphone, code.getLoginCode(), 300, TimeUnit.SECONDS);
         }
 
@@ -77,7 +80,6 @@ public class LoginServiceImpl implements LoginService {
 
         try {
             CommonResponse response = client.getCommonResponse(request);
-            System.out.println(response.getData());
         } catch (ServerException e) {
             e.printStackTrace();
         } catch (ClientException e) {
@@ -88,15 +90,15 @@ public class LoginServiceImpl implements LoginService {
 
     //比对验证码
     @Override
-    public Boolean verificationCode(String phone,String vc){
+    public Boolean verificationCode(String phone, String vc) {
         String s = stringRedisTemplate.opsForValue().get(phone);
         if (s != null) {
-            if (vc.equals(s.substring(9, 13))){
+            if (vc.equals(s.substring(9, 13))) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
-        }else {
+        } else {
             return false;
         }
 
@@ -104,14 +106,10 @@ public class LoginServiceImpl implements LoginService {
 
     //用户注册成功进行信息存储
     @Override
-    public User saveRegisterUser(String phone,String pwd){
-        System.out.println("123/*/*/*/*"+lm.getPhone(phone));
-        if(lm.getPhone(phone) == null){
+    public User saveRegisterUser(String phone, String pwd) {
+        if (lm.getPhone(phone) == null) {
             User u = new User();
-            String substring = getcount().substring(3);
-            System.out.println(substring);
-            u.setNumber(code.getNewEquipmentNo("yh",substring));
-            u.setJurisdiction(1);
+            u.setNumber(code.getNewEquipmentNo("yh", getcount().substring(3)));
             u.setUsername(creatUserName.getNewUserName());
             u.setPwd(new Md5Hash(pwd, phone, 3).toString());
             u.setImg("1");
@@ -127,33 +125,74 @@ public class LoginServiceImpl implements LoginService {
             u.setVcbalance(bigDecimal);
             u.setExp(0);
             int count = lm.saveRegisterUser(u);
-            if (count > 0){
+            //未更改
+            int count2 = lm.saveUserRole(u.getNumber());
+            if (count > 0 & count2 > 0) {
                 return u;
-            }else {
+            } else {
                 return null;
             }
-        }else{
+        } else {
             return null;
         }
     }
 
 
     //比对手机号码是否已经注册
-    public Boolean verifyPhoneNumber(String phone){
-        if(lm.getPhone(phone) == null){
+    public Boolean verifyPhoneNumber(String phone) {
+        if (lm.getPhone(phone) == null) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }
 
-    public User getUserInfo(String phone){
+    //获取用户信息
+    public User getUserInfo(String phone) {
         User u = lm.getUserInfo(phone);
+        u.setRole(lm.getrole(u.getNumber()));
+        u.setPermissions(lm.getpermissions(u.getRole()));
         return u;
     }
 
     @Override
     public String getcount() {
         return lm.getNumber();
+    }
+
+    public User ptlLogin(String name, String pwd, HttpServletResponse response) {
+        User u = null;
+        if (name != null & pwd != null){
+            String upwd = getPasswordByUsername(name);
+            String s = new Md5Hash(pwd, name, 3).toString();
+            System.out.println(upwd);
+            System.out.println(s);
+            if (upwd != null & upwd.equals(s)){
+                u = getUserInfo(name);
+                cookieUtils.writeCookie(response,"sqyd", etd.AESEncode("123", name));
+            }
+        }
+        return u;
+    }
+
+    //尝试cookie登录
+    public User validationCookie(HttpServletRequest request, HttpServletResponse response) {
+        String cookiephone = cookieUtils.getCookie(request, "sqyd");
+        String phone = etd.AESDncode("123", cookiephone);
+        if (lm.getPhone(phone) != null) {
+            return lm.getUserInfo(phone);
+        } else {
+            return null;
+        }
+    }
+
+    public String changePwd(String phone,String pwd){
+        pwd = new Md5Hash(pwd,phone,3).toString();
+        int count = lm.changPwd(phone, pwd);
+        if (count > 0){
+            return "修改成功";
+        }else {
+            return "修改失败";
+        }
     }
 }
