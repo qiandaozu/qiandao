@@ -1,9 +1,15 @@
 package cn.qiandao.util;
 
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.stereotype.Component;
+import sun.security.provider.MD5;
 
 import java.util.Random;
-
+/**
+ * @Description
+ * @Author wt
+ * @data
+ */
 @Component
 public class code {
 
@@ -21,13 +27,13 @@ public class code {
         return vc;
     }
 
-    public String getInvitationCode(){
+    public static String getInvitationCode(){
         String str = "";
         char[] ch = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
                 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
         Random random = new Random();
-        for (int i = 0; i <6; i++){
+        for (int i = 0; i < 4 ; i++){
             char num = ch[random.nextInt(ch.length)];
             str += num;
         }
@@ -53,4 +59,5 @@ public class code {
 
         return newEquipmentNo;
     }
+
 }

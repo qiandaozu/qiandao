@@ -16,13 +16,20 @@ import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * @Description
+ * @Author wt
+ * @data
+ */
 @Service
 public class LoginServiceImpl implements LoginService {
 
@@ -47,8 +54,9 @@ public class LoginServiceImpl implements LoginService {
     }
 
     //发送短信
-    public String getcode(String sphone, int tcNumber) {
+    public void getcode(String sphone, int tcNumber) {
         String templateNumber = "";
+
         switch (tcNumber) {
             case 1:
                 templateNumber = "SMS_181202286";
@@ -85,7 +93,7 @@ public class LoginServiceImpl implements LoginService {
         } catch (ClientException e) {
             e.printStackTrace();
         }
-        return "验证码发送成功";
+        System.out.println("短信已发送----");
     }
 
     //比对验证码
@@ -93,12 +101,19 @@ public class LoginServiceImpl implements LoginService {
     public Boolean verificationCode(String phone, String vc) {
         String s = stringRedisTemplate.opsForValue().get(phone);
         if (s != null) {
+            System.out.println("账户存在---");
             if (vc.equals(s.substring(9, 13))) {
+                System.out.println(vc);
+                System.out.println(s);
+                System.out.println(s.substring(9, 13));
+                System.out.println("验证码正确---");
                 return true;
             } else {
+                System.out.println("验证码错误---");
                 return false;
             }
         } else {
+            System.out.println("账户不存在---");
             return false;
         }
 
@@ -106,8 +121,10 @@ public class LoginServiceImpl implements LoginService {
 
     //用户注册成功进行信息存储
     @Override
-    public User saveRegisterUser(String phone, String pwd) {
+    @Transactional(rollbackFor=Exception.class)
+    public String saveRegisterUser(String phone, String pwd,String icode, HttpServletResponse response) {
         if (lm.getPhone(phone) == null) {
+            System.out.println("新用户---");
             User u = new User();
             u.setNumber(code.getNewEquipmentNo("yh", getcount().substring(3)));
             u.setUsername(creatUserName.getNewUserName());
@@ -126,17 +143,28 @@ public class LoginServiceImpl implements LoginService {
             u.setExp(0);
             int count = lm.saveRegisterUser(u);
             //未更改
-            int count2 = lm.saveUserRole(u.getNumber());
+            int count2 = -1;
+            if (lm.getUserByNumberOnRole(u.getNumber()) == null) {
+                count2 = lm.saveUserRole(u.getNumber());
+            }
+            if (icode != null){
+                lm.saveInvitationInfo(u.getNumber(),lm.getNumberByIcode(icode),date.getDate());
+            }
+            lm.saveNovTaskInfo(u.getNumber(),date.getDateTime());
+            System.out.println("你的父级邀请码为"+icode);
             if (count > 0 & count2 > 0) {
-                return u;
+                System.out.println("信息存储成功---");
+                System.out.println(u);
+                return "注册成功";
             } else {
-                return null;
+                System.out.println("存储异常---");
+                return "注册异常";
             }
         } else {
-            return null;
+            System.out.println("用户已存在---");
+            return "注册失败";
         }
     }
-
 
     //比对手机号码是否已经注册
     public Boolean verifyPhoneNumber(String phone) {
@@ -161,17 +189,18 @@ public class LoginServiceImpl implements LoginService {
     }
 
     public User ptlLogin(String name, String pwd, HttpServletResponse response) {
-        User u = null;
-        if (name != null & pwd != null){
+        User u = new User();
+        if (name != null && pwd != null) {
+            System.out.println("比对信息---");
             String upwd = getPasswordByUsername(name);
             String s = new Md5Hash(pwd, name, 3).toString();
-            System.out.println(upwd);
-            System.out.println(s);
-            if (upwd != null & upwd.equals(s)){
+            if (upwd != null && upwd.equals(s)) {
+                System.out.println("获取用户信息---");
                 u = getUserInfo(name);
-                cookieUtils.writeCookie(response,"sqyd", etd.AESEncode("123", name));
+                cookieUtils.writeCookie(response, "sqyd", etd.AESEncode("123", name));
             }
         }
+        System.out.println("user的值为------"+u);
         return u;
     }
 
@@ -186,13 +215,16 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
-    public String changePwd(String phone,String pwd){
-        pwd = new Md5Hash(pwd,phone,3).toString();
+    public String changePwd(String phone, String pwd) {
+        pwd = new Md5Hash(pwd, phone, 3).toString();
+        System.out.println(phone);
+        System.out.println(pwd);
         int count = lm.changPwd(phone, pwd);
-        if (count > 0){
-            return "修改成功";
-        }else {
-            return "修改失败";
+        System.out.println(count);
+        if (count > 0) {
+            return "重置密码成功";
+        } else {
+            return "重置密码失败";
         }
     }
 }

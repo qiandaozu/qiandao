@@ -3,7 +3,11 @@ package cn.qiandao.util;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
-
+/**
+ * @Description
+ * @Author wt
+ * @data
+ */
 @Component
 public class CreatUserName {
 
