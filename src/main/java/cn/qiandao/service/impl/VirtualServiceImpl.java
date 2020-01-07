@@ -3,9 +3,14 @@ package cn.qiandao.service.impl;
 import cn.qiandao.mapper.VirtualMapper;
 import cn.qiandao.pojo.Virtualcurrencyrecords;
 import cn.qiandao.service.VirtualService;
+import cn.qiandao.utils.IDUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +19,9 @@ import java.util.List;
  **/
 @Service
 public class VirtualServiceImpl implements VirtualService {
-
+    private Logger log = LoggerFactory.getLogger(VirtualServiceImpl.class);
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Autowired
     private VirtualMapper virtualMapper;
 
@@ -27,6 +34,13 @@ public class VirtualServiceImpl implements VirtualService {
 
     @Override
     public int addVirtualcords(Virtualcurrencyrecords v) {
+        v.setVcrTime(new Date());
+        String virtual = (String) redisTemplate.opsForValue().get("金币");
+        log.info("旧值是" + virtual);
+        String jb = IDUtil.getNewEquipmentNo("jb", virtual);
+        log.info("新值是" + virtual);
+        redisTemplate.opsForValue().set("金币",jb);
+        v.setVcrNumber(jb);
         return virtualMapper.insert(v);
     }
 
