@@ -3,6 +3,7 @@ package cn.qiandao.pojo;
 import lombok.Data;
 
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -43,6 +44,8 @@ public class Skillcomment implements Serializable {
     * 发布人编号
     */
     private String scUsernumber;
+    @Transient
+    private User user;
 
     private static final long serialVersionUID = 1L;
 }
