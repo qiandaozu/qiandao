@@ -3,6 +3,7 @@ package cn.qiandao.service.impl;
 import cn.qiandao.mapper.SkillcommentMapper;
 import cn.qiandao.pojo.Skillcomment;
 import cn.qiandao.service.SkillcommentService;
+import cn.qiandao.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,16 @@ public class SkillcommentServiceImpl implements SkillcommentService {
 
     @Autowired
     private SkillcommentMapper skillcommentMapper;
+    @Autowired
+    private UserService userService;
     @Override
     public List<Skillcomment> selSkillcomment(String sknumber) {
         Skillcomment skillcomment = new Skillcomment();
         skillcomment.setScSkillnumber(sknumber);
-        return skillcommentMapper.select(skillcomment);
+        List<Skillcomment> select = skillcommentMapper.select(skillcomment);
+        for (Skillcomment skillcomment1:select){
+            skillcomment1.setUser(userService.findById(skillcomment1.getScUsernumber()));
+        }
+        return select;
     }
 }
