@@ -1,10 +1,17 @@
 package cn.qiandao.util;
 
+import cn.qiandao.mapper.LoginMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
-
+/**
+ * @Description
+ * @Author wt
+ * @data
+ */
 @Component
 public class DateTime {
 
@@ -20,6 +27,11 @@ public class DateTime {
         }
         java.sql.Date date = new java.sql.Date(d.getTime());
         return date;
+    }
+
+    public String getDateTime() {
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
     }
 
 }
