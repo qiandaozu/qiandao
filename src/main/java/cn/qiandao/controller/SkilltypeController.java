@@ -23,7 +23,7 @@ public class SkilltypeController {
 
     @GetMapping("/sel")
     @ApiImplicitParam(name = "stid", value = "技能类型编号", required = true, dataType = "string", paramType = "path")
-    public List<Skilltype> getByFamilyAll(@RequestParam(value = "stid", defaultValue = "0") String siFamilyId){
+    public List<Skilltype> getByFamilyAll(@RequestParam(value = "stid", defaultValue = "jn0098") String siFamilyId){
         return skilltypeService.getByFamilyAll(siFamilyId);
     }
 }
