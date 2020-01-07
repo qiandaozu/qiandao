@@ -3,9 +3,15 @@ package cn.qiandao.service.impl;
 import cn.qiandao.mapper.CashrecordsMapper;
 import cn.qiandao.pojo.Cashrecords;
 import cn.qiandao.service.CashrecordsService;
+import cn.qiandao.utils.IDUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,17 +20,31 @@ import java.util.List;
  **/
 @Service
 public class CashrecordsServiceImpl implements CashrecordsService {
+    private Logger log = LoggerFactory.getLogger(VirtualServiceImpl.class);
     @Autowired
     private CashrecordsMapper cashrecordsMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     @Override
     public List<Cashrecords> getCashreByCuId(String cuid) {
         Cashrecords cashrecords = new Cashrecords();
         cashrecords.setCrGatheringusernumber(cuid);
         return cashrecordsMapper.select(cashrecords);
+
     }
 
     @Override
     public int addCashrecords(Cashrecords cashrecords) {
+        redisTemplate.opsForList().rightPush("现金",cashrecords);
+        cashrecords.setCrDate(new Date());
+        String virtual = (String) redisTemplate.opsForValue().get("金币");
+        log.info("旧值是" + virtual);
+        String jl = IDUtil.getNewEquipmentNo("jl", virtual);
+        log.info("新值是" + virtual);
+        redisTemplate.opsForValue().set("金币",jl);
+        cashrecords.setCrNumber(jl);
         return cashrecordsMapper.insert(cashrecords);
     }
 
